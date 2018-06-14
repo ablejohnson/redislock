@@ -30,11 +30,16 @@ public class LockManager {
     }
 
     public static JedisLock lock(Jedis jedis,String key) throws LockException {
-         lock(jedis,key,DEFAULT_LOCK_EXP);
+         lockJedis(jedis,key,DEFAULT_LOCK_EXP);
          return new JedisLock(jedis,key);
     }
 
-    private static void lock(Jedis jedis,String key,Integer secondsToExpire) throws LockException {
+    public static JedisLock lock(Jedis jedis,String key,Integer secondsToExpire) throws LockException {
+        lockJedis(jedis,key,secondsToExpire);
+        return new JedisLock(jedis,key);
+    }
+
+    private static void lockJedis(Jedis jedis,String key,Integer secondsToExpire) throws LockException {
         boolean locked = jedis.setnx(key,"")==1;
         if(!locked){
             throw new LockException("Unable to acquire redis lock");
